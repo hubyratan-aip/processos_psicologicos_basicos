@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Enade - Processos Psicológicos Básicos</title>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
+            color: #2d3748; 
+            line-height: 1.6; 
+            padding: 30px 15px; 
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #ffffff; 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); 
+        }
+
+        .stats-panel { 
+            display: flex; 
+            justify-content: space-between; 
+            background: #2d3748; 
+            color: #ffffff; 
+            padding: 20px 25px; 
+            border-radius: 16px; 
+            margin-bottom: 30px; 
+            font-weight: 600; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stats-panel span { font-size: 1.05em; }
+        .acertos { color: #68d391; } 
+        .erros { color: #fc8181; } 
+
+        /* --- Área da Questão --- */
+        .question-header { 
+            font-size: 1.4em; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+            color: #2b6cb0; 
+        }
+        .enunciado { 
+            margin-bottom: 25px; 
+            white-space: pre-wrap; 
+            font-size: 1.15em; 
+            color: #2d3748;
+        }
+        .assercoes-box { 
+            background-color: #f7fafc; 
+            border-left: 5px solid #3182ce; 
+            padding: 18px 20px; 
+            margin-bottom: 25px; 
+            font-style: italic; 
+            border-radius: 0 12px 12px 0; 
+            color: #4a5568;
+        }
+        
+        /* --- Alternativas --- */
+        .options-container { margin-bottom: 30px; }
+        .option-label { 
+            display: flex;
+            align-items: center;
+            background: #ffffff; 
+            padding: 18px 20px; 
+            margin-bottom: 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            border: 2px solid #e2e8f0; 
+            transition: all 0.2s ease; 
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+        .option-label:hover { 
+            border-color: #3182ce; 
+            background: #ebf8ff; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .option-label.correct { 
+            border-color: #38a169; 
+            background: #f0fff4; 
+            color: #22543d;
+        }
+        .option-label.incorrect { 
+            border-color: #e53e3e; 
+            background: #fff5f5; 
+            color: #742a2a;
+        }
+        input[type="radio"] { 
+            margin-right: 15px; 
+            transform: scale(1.3); 
+            accent-color: #3182ce;
+        }
+        
+        /* --- Botões de Navegação --- */
+        .nav-buttons { display: flex; gap: 15px; margin-top: 20px; }
+        .btn { 
+            background: #3182ce; 
+            color: #ffffff; 
+            border: none; 
+            padding: 16px 24px; 
+            font-size: 1.1em; 
+            font-weight: 600; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            flex: 1; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
+        }
+        .btn:hover { 
+            background: #2b6cb0; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(49, 130, 206, 0.3);
+        }
+        .btn:disabled { 
+            background: #cbd5e0; 
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed; 
+        }
+        .btn-secondary { background: #a0aec0; box-shadow: 0 4px 6px rgba(160, 174, 192, 0.2); }
+        .btn-secondary:hover { background: #718096; box-shadow: 0 6px 12px rgba(160, 174, 192, 0.3); }
+        
+        /* --- Feedback (Explicações) --- */
+        .feedback { 
+            margin-top: 30px; 
+            padding: 25px; 
+            border-radius: 16px; 
+            display: none; 
+            font-size: 1.05em; 
+        }
+        .feedback.correct-box { background: #f0fff4; color: #22543d; border: 2px solid #c6f6d5; }
+        .feedback.incorrect-box { background: #fff5f5; color: #742a2a; border: 2px solid #fed7d7; }
+        .explanation { margin-top: 12px; font-weight: normal; line-height: 1.6; }
+
+        /* --- Grid de Navegação Rápida --- */
+        .question-grid { 
+            margin-top: 40px; 
+            padding-top: 30px; 
+            border-top: 2px solid #edf2f7; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+        .grid-btn { 
+            width: 45px; 
+            height: 45px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1em;
+            background: #edf2f7; 
+            color: #4a5568; 
+            transition: all 0.2s; 
+        }
+        .grid-btn:hover { background: #e2e8f0; transform: translateY(-2px); }
+        .grid-btn.answered-correct { background: #48bb78; color: white; }
+        .grid-btn.answered-incorrect { background: #f56565; color: white; }
+        .grid-btn.current { 
+            border: 3px solid #2d3748; 
+            background: #fff;
+            transform: scale(1.1); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+            z-index: 10; 
+            color: #2d3748;
+        }
+        
+        .reset-btn { background: #f56565; margin-top: 40px; width: 100%; box-shadow: 0 4px 6px rgba(245, 101, 101, 0.2); }
+        .reset-btn:hover { background: #e53e3e; }
+
+        /* --- Ajustes de Responsividade para Celulares --- */
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 14px; }
+            .container { padding: 20px 15px; border-radius: 16px; }
+            
+            .stats-panel { 
+                display: grid;
+                grid-template-columns: 1fr 1fr; 
+                gap: 8px;
+                padding: 12px;
+                text-align: left;
+                margin-bottom: 20px;
+            }
+            .stats-panel span { font-size: 0.85em; } 
+            
+            .question-header { font-size: 1.15em; margin-bottom: 10px; }
+            .enunciado { font-size: 0.95em; margin-bottom: 15px; } 
+            
+            .assercoes-box { padding: 12px 15px; font-size: 0.9em; margin-bottom: 15px; }
+
+            .option-label { padding: 12px 15px; font-size: 0.9em; margin-bottom: 8px; }
+            input[type="radio"] { transform: scale(1.1); margin-right: 10px; }
+
+            .nav-buttons { flex-direction: column; gap: 10px; margin-top: 15px;}
+            .btn { padding: 12px; font-size: 0.95em; }
+            #submit-btn { order: -1; }
+            #prev-btn, #next-btn { width: 100%; }
+
+            .feedback { padding: 15px; font-size: 0.9em; margin-top: 20px; }
+
+            .question-grid { justify-content: center; gap: 6px; margin-top: 25px; padding-top: 20px; }
+            .grid-btn { width: 34px; height: 34px; font-size: 0.85em; } 
+            
+            .reset-btn { margin-top: 25px; }
+        }        
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="stats-panel">
+        <span>Questão <span id="current-question-num">1</span> de <span id="total-questions">0</span></span>
+        <span class="acertos">Acertos: <span id="score-correct">0</span></span>
+        <span class="erros">Erros: <span id="score-incorrect">0</span></span>
+        <span>Aproveitamento: <span id="score-percent">0</span>%</span>
+    </div>
+
+    <div id="quiz-area">
+        <div class="question-header" id="question-title"></div>
+        <div class="enunciado" id="enunciado-text"></div>
+        <div class="assercoes-box" id="assercoes-area" style="display: none;"></div>
+        <div class="options-container" id="options-area"></div>
+        
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" id="prev-btn" onclick="navegar(-1)">&#8592; Voltar</button>
+            <button class="btn" id="submit-btn" onclick="verificarResposta()">Confirmar Resposta</button>
+            <button class="btn btn-secondary" id="next-btn" onclick="navegar(1)">Avançar &#8594;</button>
+        </div>
+        
+        <div id="feedback-area" class="feedback">
+            <strong id="feedback-title"></strong>
+            <div id="feedback-explanation" class="explanation"></div>
+        </div>
+
+        <div class="question-grid" id="grid-area"></div>
+        
+        <button class="btn reset-btn" onclick="zerarSimulado()">Limpar Progresso e Recomeçar</button>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // COLOQUE SEU BANCO DE QUESTÕES (JSON) AQUI
+    // ==========================================
+    const banco = [
+    
+  {
+    "id": 1,
+    "tipo": "objetiva",
+    "enunciado": "A partir da leitura de Rossler (2004) sobre o desenvolvimento do psiquismo na vida cotidiana, compreende-se que a cotidianidade é o espaço de satisfação das necessidades essenciais do indivíduo. No entanto, a vida cotidiana pode assumir um caráter alienante. Sob a ótica da crítica à patologização e compreendendo que o sintoma carrega a história do sujeito, avalie as afirmações abaixo sobre a alienação do psiquismo:\n\nI. A alienação do psiquismo cotidiano ocorre quando o indivíduo é diagnosticado com transtornos mentais catalogados em manuais estatísticos, o que comprova uma falha genética em sua capacidade de adaptação social.\nII. A alienação manifesta-se quando a estrutura da vida cotidiana se hipertrofia, restringindo o indivíduo à reprodução de sua particularidade e impedindo seu acesso às objetivações genéricas para-si (como a arte, a ciência e a filosofia).\nIII. O sistema capitalista, ao exigir um indivíduo hiperprodutivo, transforma problemas estruturais da vida cotidiana em patologias individuais, mascarando a alienação social sob o véu do adoecimento biológico.\n\nÉ correto o que se afirma em:",
+    "assercoes": [],
+    "alternativas": [
+      "A) I, apenas.",
+      "B) II, apenas.",
+      "C) I e III, apenas.",
+      "D) II e III, apenas.",
+      "E) I, II e III."
+    ],
+    "resposta_correta": 3,
+    "explicacao": "A alternativa correta é a D (II e III, apenas). A afirmativa II está correta pois, segundo Rossler (apoiado em Agnes Heller), a alienação ocorre justamente quando o indivíduo fica preso às motivações particulares da sobrevivência diária (esfera em-si), alienando-se da universalidade do gênero humano. A afirmativa III está correta e alinhada à visão crítica da disciplina: o modelo neoliberal capitalista desloca a questão social para a culpa do indivíduo, transformando o sofrimento oriundo da alienação e da exploração em um 'déficit' ou 'transtorno' a ser medicalizado. A afirmativa I está INCORRETA porque a disciplina refuta a ideia de que o diagnóstico estático de manuais (como o DSM) comprova falhas genéticas adaptativas; pelo contrário, essa visão medicalizante oculta a gênese sócio-histórica do sofrimento."
+  },
+  {
+    "id": 2,
+    "tipo": "discursiva",
+    "enunciado": "A partir da leitura do artigo 'O desenvolvimento do psiquismo na vida cotidiana', de João Rossler (2004), e das discussões em sala sobre a crítica ao sistema de patologização, argumente: De que maneira o psiquismo cotidiano está articulado àquilo que o autor denomina 'alienação'? Fundamente seu argumento relacionando-o à ideia de que o sofrimento (sintoma) carrega a história do sujeito e não deve ser reduzido a um mero defeito biológico.",
+    "resposta_esperada": "Segundo Rossler (2004), o psiquismo cotidiano se articula à alienação quando a estrutura da vida cotidiana se hipertrofia e se torna a única forma de vida do indivíduo, aprisionando-o na reprodução de sua particularidade e sobrevivência imediata. Nesse estado, o sujeito é cerceado de acessar as esferas não-cotidianas (objetivações genéricas para-si, como arte, ciência e filosofia), resultando em um empobrecimento intelectual e afetivo que o torna vulnerável à manipulação e o impede de conduzir sua vida de forma livre e consciente.\nNessa perspectiva crítica, o sofrimento que emerge dessa limitação não pode ser reduzido a um mero déficit biológico ou transtorno patológico, pois o sintoma é, na verdade, a expressão da história do sujeito e das condições materiais de uma sociedade (como a capitalista) estruturada na exploração. Tratar essa alienação apenas com laudos e medicalização (como o uso acrítico de manuais como o DSM) atua como um mecanismo ideológico que culpa o indivíduo por seu esgotamento, ignorando que o ser humano se humaniza na cultura e que seu adoecimento reflete, intrinsecamente, as violências de seu meio social."
+  },
+  {
+    "id": 3,
+    "tipo": "objetiva",
+    "enunciado": "De-Nardin e Sordi (2009), ao discutirem a 'Aprendizagem da atenção: uma abertura à invenção', problematizam a exigência escolar pela atenção concentrada e detida. Em um contexto de hiperestimulação tecnológica (sociedade do desempenho e do cansaço), a escola frequentemente atua como um dispositivo de biopoder ao diagnosticar alunos dispersos com Transtorno de Déficit de Atenção e Hiperatividade (TDAH). Analise as asserções a seguir e a relação proposta entre elas:\n\nI. A escola contemporânea tende a valorizar exclusivamente a atenção recognitiva, voltada para a captação de informações, a adaptação ao meio e a manutenção de corpos dóceis e produtivos.\nPORQUE\nII. O movimento de 'distração' (ou breakdown), que permite a flutuação do foco e a problematização inventiva, é frequentemente interpretado pelas instituições disciplinares como um déficit neurobiológico, ignorando que a atenção humana é modulada histórica e culturalmente.\n\nA respeito dessas asserções, assinale a opção correta:",
+    "assercoes": [
+      "I. A escola contemporânea tende a valorizar exclusivamente a atenção recognitiva, voltada para a captação de informações, a adaptação ao meio e a manutenção de corpos dóceis e produtivos.",
+      "II. O movimento de 'distração' (ou breakdown), que permite a flutuação do foco e a problematização inventiva, é frequentemente interpretado pelas instituições disciplinares como um déficit neurobiológico, ignorando que a atenção humana é modulada histórica e culturalmente."
+    ],
+    "alternativas": [
+      "A) As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "B) As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "C) A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "D) A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "E) As asserções I e II são proposições falsas."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A alternativa A é a correta. A asserção I é verdadeira pois a escola (enquanto dispositivo de biopoder, na visão de Foucault e Han) exige uma atenção focal (recognitiva) visando a eficiência, a memorização utilitária e o controle comportamental (corpos dóceis). A asserção II também é verdadeira e JUSTIFICA a I, pois é justamente porque a escola e a sociedade patologizam o 'breakdown' (o momento de suspensão ou 'distração' necessário para a aprendizagem inventiva) como uma doença (TDAH) que a atenção recognitiva se consolida como o único modelo aceitável de normalidade. As demais alternativas estão incorretas pois negam a veracidade das asserções (C, D, E) ou negam a clara relação de causalidade entre a patologização da distração criativa e a hegemonia da atenção recognitiva utilitária na escola (B)."
+  },
+  {
+    "id": 4,
+    "tipo": "objetiva",
+    "enunciado": "A compreensão da cognição corporificada refuta veementemente o dualismo mente-corpo herdado da tradição cartesiana. No texto de Souza (2022), 'Sensação e intuição: duas vertentes da percepção', bem como nas pesquisas sobre neurociência cognitiva de Gonçalves et al. (2014), demonstra-se que o corpo participa ativamente da produção de sentido. Sobre a relação entre fisiologia, afeto e cognição, assinale a alternativa correta:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A empatia é um processo de simulação estritamente intelectual que independe de marcadores somáticos, ocorrendo na esfera racional do córtex pré-frontal sem envolver contágio emocional ou sincronia autonômica.",
+      "B) A emoção atua como um ruído ou obstáculo para a organização da experiência sensorial e racional, devendo ser suprimida para que a verdadeira intuição lógica ocorra.",
+      "C) A intuição, definida como um modo inconsciente e corporificado de processamento, carece de validade no conhecimento psicológico, sendo considerada um viés puramente especulativo do senso comum.",
+      "D) A empatia envolve processos biológicos e fisiológicos reais, refletindo-se em sincronia autonômica (como alteração de frequência cardíaca e condutância da pele) entre os sujeitos, o que comprova que o afeto organiza a experiência em uma unidade mente-corpo.",
+      "E) O diagnóstico psiquiátrico baseado na neurociência cognitiva desconsidera os aspectos corporificados da emoção para se focar estritamente nos desequilíbrios dos neurotransmissores isolados do contexto ambiental."
+    ],
+    "resposta_correta": 3,
+    "explicacao": "A alternativa correta é a D. Gonçalves et al. (2014) e as anotações de aula demonstram que a empatia possui bases biológicas e psicofisiológicas reais, promovendo uma 'dança autonômica' (sincronia cardíaca e sudorese) entre os indivíduos, o que fundamenta a cognição corporificada. A alternativa A está INCORRETA porque separa a empatia de sua base somática. A alternativa B está INCORRETA porque a emoção não é um obstáculo à razão, mas aquilo que organiza a experiência sensorial. A alternativa C está INCORRETA, pois Souza (2022) valida a intuição como um modo rápido, holístico e legítimo de conhecimento baseado em memórias corporificadas e experiências passadas. A alternativa E está INCORRETA porque uma visão crítica da neurociência (e da psicologia) não deve isolar neurotransmissores do contexto ambiental, pois o organismo responde dialeticamente ao meio."
+  },
+  {
+    "id": 5,
+    "tipo": "discursiva",
+    "enunciado": "Tendo como base o texto 'Aprendizagem da atenção: uma abertura à invenção' (De-Nardin e Sordi, 2009) e a discussão sobre temporalidade na modernidade (a cultura das telas gerando dispersão dominante), explique como as autoras diferenciam a 'dispersão' (ou desatenção) da 'distração' (estado necessário para a invenção). Relacione essa diferença com o papel da escola frente à patologização do comportamento infantil.",
+    "resposta_esperada": "Segundo De-Nardin e Sordi (2009), a dispersão (fortemente estimulada pela cultura das telas e da hiperestimulação) caracteriza-se por um vagar constante e superficial de foco em foco, aprisionando o sujeito no 'aqui e agora' sem a capacidade de interiorizar ou elaborar a experiência. Já a 'distração' é compreendida não como um déficit, mas como um movimento vital do processo cognitivo inventivo (o 'breakdown'). Nesse estado, a atenção se suspende momentaneamente de seu foco utilitário para mergulhar na memória e no passado do sujeito, permitindo o retorno ao objeto com um novo sentido, configurando o momento de criação ou problematização.\nA escola, por sua vez, ao exigir um ritmo produtivo e linear (atenção recognitiva focada) e não compreender a riqueza do processo de 'distração' inventiva, acaba patologizando esse comportamento. Ao invés de promover espaços para que o aluno possa elaborar seu pensamento criticamente (exigindo tempo e interiorização), a escola atua como um dispositivo de controle que transforma qualquer fuga do roteiro adaptativo em sintoma clínico (como o TDAH), culpabilizando o indivíduo e ignorando os efeitos de um ambiente social dispersivo."
+  },
+  {
+    "id": 6,
+    "tipo": "objetiva",
+    "enunciado": "Martins e Vieira (2010), no artigo 'Desenvolvimento humano e cultura', discutem a intersecção entre a ontogênese, a filogênese e o contexto sociocultural. Na disciplina, enfatiza-se a recusa ao determinismo biológico ('o psicopata já nasce pronto') e adota-se o conceito de Epigênese. Sobre as relações entre biologia, cultura e desenvolvimento psicológico, é correto afirmar que:",
+    "assercoes": [],
+    "alternativas": [
+      "A) O modelo padrão das ciências sociais (SSSM) é plenamente adotado pela psicologia contemporânea por demonstrar que o bebê humano nasce como uma 'tábula rasa', anulando qualquer influência da evolução filogenética.",
+      "B) A epigênese probabilística explica como a interação entre a carga genética e os fatores ambientais/culturais é bidirecional, de modo que a atividade genética afeta e é afetada pela experiência, comprovando que o ser humano não é determinado apenas pela sua biologia.",
+      "C) O conceito de 'nascemos biológicos, tornamo-nos humanos' indica que a cultura exerce uma força limitadora e adoecedora sobre a verdadeira natureza genética do indivíduo, que deve ser resgatada através da medicalização.",
+      "D) Modelos culturais de independência e interdependência operam de forma isolada do desenvolvimento ontogenético, provando que trajetórias de desenvolvimento cognitivo são invariavelmente idênticas em qualquer cultura do planeta.",
+      "E) A violência e o sofrimento psíquico são fenômenos puramente resultantes da filogênese humana; logo, abordagens focadas no contexto social e histórico são ineficazes para modificar traços de personalidade herdados."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. A epigênese (e a epigênese probabilística) descreve justamente como o desenvolvimento é produto de relações complexas e bidirecionais entre os genes, a maturação e a experiência/ambiente sociocultural, rompendo com qualquer determinismo biológico ou ambiental isolado. A alternativa A está INCORRETA porque o SSSM ('tábula rasa') é criticado tanto pelos autores quanto pela psicologia evolutiva por desconsiderar o arcabouço filogenético. A alternativa C está INCORRETA porque a cultura não é o que 'adoece a verdadeira natureza', mas o processo pelo qual o sujeito de fato se humaniza (apropriação da cultura). A alternativa D está INCORRETA, pois os modelos culturais moldam trajetórias de desenvolvimento muito distintas (como o 'self' relacional vs. autônomo). A alternativa E está INCORRETA, pois a premissa crítica da aula ('a violência é produzida no meio') rejeita que a violência ou a psicopatia sejam destinos biológicos imutáveis puramente ligados à filogênese."
+  },
+  {
+    "id": 7,
+    "tipo": "objetiva",
+    "enunciado": "A neurobiologia do estresse, tratada por Gonçalves et al. (2014), descreve a ativação do eixo hipotálamo-pituitária-adrenal (HPA) como resposta do organismo. A partir da perspectiva de que o 'sintoma é história' e de que o sofrimento humano possui gênese sócio-histórica, como os estudos sobre o estresse nas primeiras etapas da vida (ontogênese) corroboram a visão crítica da psicologia contra o determinismo genético absoluto?",
+    "assercoes": [],
+    "alternativas": [
+      "A) Eles demonstram que as reações de ansiedade e depressão na vida adulta são causadas exclusivamente pela sequência imutável do DNA com a qual o indivíduo nasce, isentando o ambiente de responsabilidade.",
+      "B) Eles provam que separações maternas precoces ou abandono institucional programam epigeneticamente o eixo HPA, alterando fisicamente os receptores de cortisol e aumentando a vulnerabilidade ao estresse, o que mostra que a história social se inscreve na biologia do sujeito.",
+      "C) Eles indicam que a resiliência humana depende da eliminação rápida do sintoma através de psicofármacos, única forma de devolver ao indivíduo a produtividade exigida pelo sistema neoliberal.",
+      "D) Eles revelam que o eixo HPA só é ativado por estímulos puramente biológicos ou toxinas, sendo blindado contra eventos estressores de natureza psicológica, afetiva ou socioeconômica.",
+      "E) Eles sugerem que as crianças institucionalizadas apresentam respostas ao cortisol idênticas às de crianças que nunca sofreram separação, provando a tese de que o psiquismo é resistente a alienações cotidianas precoces."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O texto de Gonçalves et al. (2014) detalha como experiências adversas precoces (abandono, estresse) alteram epigeneticamente a expressão de receptores de glicocorticoides no cérebro (eixo HPA). Isso reforça profundamente a visão da aula: 'o sintoma é história' – o sofrimento e a biologia são esculpidos pelo meio social, refutando o determinismo biológico. A alternativa A está INCORRETA pois nega a plasticidade e a influência do ambiente. A alternativa C está INCORRETA pois vai contra a visão do professor de não focar na eliminação do sintoma apenas para devolver produtividade ao capital, mas em elaborar a história do sujeito. A alternativa D está INCORRETA pois o eixo HPA é altamente sensível ao estresse psicológico. A alternativa E está INCORRETA pois os estudos citados no texto comprovam justamente o contrário: crianças institucionalizadas têm regulação de cortisol significativamente alterada."
+  },
+  {
+    "id": 8,
+    "tipo": "discursiva",
+    "enunciado": "Na discussão sobre o pensamento psicológico científico, foi abordada a diferença estrutural e epistemológica entre a Psicologia e o senso comum, bem como a historicidade dos transtornos mentais em face das pressões do sistema capitalista (psicopolítica). Explique como a adoção acrítica dos diagnósticos fechados (como depressão ou TDAH) pelo senso comum e pelas instituições atende a uma demanda do sistema produtivo. Por que a clínica psicológica, segundo a visão apresentada na disciplina, deve operar com uma 'Diagnóstica' (processo contínuo) em vez de focar primariamente na eliminação medicamentosa do sintoma?",
+    "resposta_esperada": "A adoção acrítica de diagnósticos fechados pelo senso comum e pelas instituições serve diretamente à lógica do capitalismo neoliberal, pois atua como um dispositivo psicopolítico de controle. Ao classificar o cansaço, a dispersão ou a tristeza oriundos da exploração, da hiperestimulação e da precarização da vida como doenças puramente individuais (TDAH, depressão), o sistema isenta-se de responsabilidade, deslocando a falha social para o cérebro do sujeito. Isso gera uma demanda pela imediata medicalização e supressão do sintoma, não para curar o ser humano, mas para devolvê-lo rapidamente à linha de produtividade e manter o status quo do desempenho.\nContrapondo-se a isso, a clínica psicológica deve operar a partir de uma 'Diagnóstica', um processo vivo e contínuo de compreensão, e não apenas emitir um rótulo ('Diagnóstico'). O objetivo não é apagar o sintoma de forma higienista, pois o sintoma contém a biografia e a história das relações do sujeito. O trabalho clínico visa auxiliar o indivíduo a 'sofrer com qualidade' e a elaborar sua dor, proporcionando-lhe ferramentas críticas para que possa ressignificar sua história e emancipar-se das violências sistêmicas e normativas impostas pela cultura e pelas instituições."
+  },
+  {
+    "id": 9,
+    "tipo": "objetiva",
+    "enunciado": "A respeito dos conceitos de 'Tempo de Leitura' versus a 'Dispersão Dominante' promovida pela cultura das telas, discutidos em sala de aula em paralelo com a obra de De-Nardin e Sordi (2009), avalie as proposições a seguir e a dinâmica temporal no psiquismo moderno:\n\nI. A cultura das telas exige o movimento de zapping, que insere o sujeito em uma temporalidade baseada na sucessão de momentos presentes pontuais e desconectados, dificultando a interiorização crítica.\nII. O 'Tempo de Leitura' envolve uma temporalidade cumulativa e evolutiva (Ver → Elaborar → Concluir), na qual o passado, o presente e o futuro se conectam, constituindo um antídoto para a alienação mental.\nIII. A subjetivação promovida pelo tempo pontual da internet conduz a uma emancipação do sujeito, pois a constante mudança de foco permite a apreensão rápida de múltiplas verdades científicas sem a lentidão do pensamento reflexivo.\n\nÉ correto o que se afirma em:",
+    "assercoes": [],
+    "alternativas": [
+      "A) I e II, apenas.",
+      "B) I e III, apenas.",
+      "C) II e III, apenas.",
+      "D) III, apenas.",
+      "E) I, II e III."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A alternativa correta é a A (I e II, apenas). A proposição I é correta: o zapping e as telas geram um 'aqui e agora' eterno que empobrece a elaboração e estimula uma atenção volátil e alienante. A proposição II também é correta: o 'tempo de leitura' (ou estudo) cria a espessura temporal necessária (duração bergsoniana) para a problematização, a invenção e a conexão de ideias, combatendo a subjetivação alienada. A proposição III é INCORRETA, pois vai na contramão da crítica teórica da disciplina: a mudança constante de foco não emancipa o sujeito; ao contrário, promove uma 'subjetivação regressiva' e infantilizada, um uso puramente instrumental da experiência, sem o tempo necessário para a verdadeira elaboração do conhecimento (pensamento crítico)."
+  },
+  {
+    "id": 10,
+    "tipo": "objetiva",
+    "enunciado": "Ao estudar os processos de Sensação e Intuição a partir do texto de Souza (2022) e da ideia de 'Fluxo do Conhecimento' (Sentir → Perceber → Compreender), a Psicologia rompe com abordagens estritamente racionalistas. A respeito do papel da Intuição no psiquismo humano e na atuação do psicólogo, assinale a alternativa que melhor descreve este fenômeno de acordo com a perspectiva discutida:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A intuição é um processo místico e esotérico, originário do senso comum, e deve ser completamente descartado pela psicologia científica, visto que carece de qualquer base material ou empírica.",
+      "B) A intuição é uma forma de processamento cognitivo não consciente e veloz, que prescinde de raciocínio lógico-sequencial e se baseia em associações de experiências passadas e marcadores corporais (afetivos) armazenados na memória.",
+      "C) A sensação e a percepção ocorrem de forma apartada, onde a intuição atua exclusivamente na esfera consciente para corrigir os vieses emocionais gerados pelas interações sociais.",
+      "D) A intuição representa o último estágio filogenético do cérebro humano, onde a tomada de decisão ocorre livre de qualquer experiência corporal ou somática, baseando-se em arquétipos pré-formados inatos.",
+      "E) A intuição só é validada clinicamente quando o indivíduo adquire expertise máxima, sendo impossível observar fenômenos intuitivos em situações da vida cotidiana, como nas interações socioafetivas."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. De acordo com Souza (2022) e as anotações sobre cognição corporificada, a intuição é definida como uma 'percepção inconsciente', um conhecimento que surge rapidamente por meio de associações mentais e marcadores somáticos (afeto e corpo) forjados na experiência do sujeito. A alternativa A está INCORRETA porque o texto de Souza e a neurociência validam a intuição como processo cognitivo material (memória implícita e marcadores somáticos de Damásio), separando-a do misticismo. A alternativa C está INCORRETA porque a intuição opera majoritariamente de forma pré-reflexiva/não consciente, e não para suprimir o afeto (já que é baseada nele). A alternativa D está INCORRETA porque a intuição é profundamente ligada à experiência corporal/somática (negação do dualismo). A alternativa E está INCORRETA, pois embora a expertise melhore a intuição profissional, Souza (2022) destaca que a intuição socioafetiva e cotidiana ocorre o tempo todo com pessoas comuns."
+  },
+  {
+    "id": 11,
+    "tipo": "objetiva",
+    "enunciado": "A Aula 02 abordou a introdução ao pensamento psicológico com base na obra de Bock (1999), estabelecendo a ruptura entre o conhecimento científico e o senso comum. Na visão crítica da Psicologia, o senso comum tende a naturalizar comportamentos que são, na verdade, produtos de um contexto sócio-histórico (por exemplo, dizer que a 'violência é instintiva'). Assinale a alternativa que descreve corretamente o papel da Psicologia Científica frente ao senso comum e à medicalização do sofrimento:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A Psicologia Científica valida o senso comum, pois as crenças populares sobre a inevitabilidade genética da tristeza e da desatenção encontram respaldo nos manuais diagnósticos atuais.",
+      "B) A Psicologia deve romper com o misticismo e com a naturalização do senso comum, investigando a materialidade das relações sociais que constroem o sofrimento, opondo-se à ideia de que os sintomas são apenas falhas químicas isoladas.",
+      "C) O conhecimento científico na Psicologia busca isolar o sujeito de seu contexto cultural, provando que o senso comum erra ao tentar inserir variáveis sociais na compreensão dos instintos humanos puramente biológicos.",
+      "D) O papel do psicólogo é traduzir o senso comum para a linguagem médica, garantindo que queixas cotidianas de esgotamento sejam rapidamente categorizadas e medicadas para devolver o bem-estar ao indivíduo.",
+      "E) A ciência psicológica corrobora a tradição do senso comum de que o diagnóstico estático (laudo) é a ferramenta definitiva para compreender a biografia do indivíduo, eliminando a necessidade de uma análise processual (diagnóstica)."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. A psicologia científica, segundo Bock e a abordagem crítica da disciplina, desnaturaliza o que o senso comum toma como instinto ou destino (como a violência ou a alienação), buscando a gênese sócio-histórica do comportamento e rechaçando reducionismos puramente químicos. A alternativa A está INCORRETA porque a ciência psicológica crítica não valida a naturalização do senso comum, tampouco aceita a inevitabilidade genética cegamente. A alternativa C está INCORRETA porque a psicologia faz o oposto: insere o sujeito em seu contexto cultural, refutando o determinismo biológico. A alternativa D está INCORRETA pois a disciplina ataca o papel do psicólogo como mero legitimador da medicalização e da lógica da hiperprodutividade. A alternativa E está INCORRETA porque a disciplina valoriza a 'diagnóstica' (processo contínuo e relacional) em detrimento do diagnóstico estático (laudo) defendido pelo modelo biomédico hegemônico."
+  },
+  {
+    "id": 12,
+    "tipo": "discursiva",
+    "enunciado": "Com base nas discussões em sala de aula e no texto de Gonçalves et al. (2014) sobre 'A psicologia como neurociência cognitiva', discorra sobre os processos fisiológicos da Empatia. Explique como a constatação de que a empatia envolve sincronia autonômica (ex: alteração de frequência cardíaca e condutância da pele) refuta o dualismo cartesiano (mente separada do corpo) e fundamenta a prática de uma clínica psicológica pautada na Cognição Corporificada.",
+    "resposta_esperada": "Os estudos de psicofisiologia citados por Gonçalves et al. (2014) demonstram que a empatia não é um fenômeno puramente intelectual ou abstrato, mas um processo profundamente enraizado na biologia do corpo humano. Durante uma interação empática, como no espaço clínico entre paciente e terapeuta, ocorre um verdadeiro contágio emocional e uma sincronia autonômica real, evidenciada por microexpressões espelhadas, alterações na frequência cardíaca e modificações na condutância da pele (sudorese). \nEssas evidências refutam o dualismo cartesiano ao provarem que a 'mente' não flutua separada da materialidade do organismo; o afeto e a cognição são instâncias de um corpo que sente e significa o mundo de forma integrada. Na prática clínica, a Cognição Corporificada lembra ao terapeuta que a emoção não é um obstáculo à razão, mas um marcador somático essencial que organiza a experiência. O psicólogo percebe o sofrimento do outro também com o seu próprio corpo, tornando a escuta um ato fisiológico, histórico e relacional, que transcende o simples processamento de informações verbalizadas."
+  },
+  {
+    "id": 13,
+    "tipo": "objetiva",
+    "enunciado": "Na Aula 03, foi discutido 'O desenvolvimento do psiquismo' baseado na teoria de Alexis N. Leontiev (Rossler, 2004). O autor postula que o psiquismo humano não se desenvolve de forma inata e isolada, mas através da 'atividade', pela qual o sujeito se apropria da cultura. Tendo em vista a frase trabalhada em aula: 'Nascemos biológicos, tornamo-nos humanos', avalie as asserções a seguir e a relação entre elas:\n\nI. O desenvolvimento pleno da consciência requer a inserção do indivíduo em atividades mediadas socialmente, pois a biologia fornece apenas a base, enquanto as relações culturais formam as funções psicológicas.\nPORQUE\nII. Se um indivíduo for mantido em um contexto de extrema alienação cotidiana e de privação de atividades enriquecedoras, seu psiquismo desenvolverá naturalmente toda a universalidade humana (arte e ciência) por força de sua maturação genética.\n\nA respeito dessas asserções, assinale a opção correta:",
+    "assercoes": [
+      "I. O desenvolvimento pleno da consciência requer a inserção do indivíduo em atividades mediadas socialmente, pois a biologia fornece apenas a base, enquanto as relações culturais formam as funções psicológicas.",
+      "II. Se um indivíduo for mantido em um contexto de extrema alienação cotidiana e de privação de atividades enriquecedoras, seu psiquismo desenvolverá naturalmente toda a universalidade humana (arte e ciência) por força de sua maturação genética."
+    ],
+    "alternativas": [
+      "A) As asserções I e II são verdadeiras, e a II é uma justificativa correta da I.",
+      "B) As asserções I e II são verdadeiras, mas a II não é uma justificativa correta da I.",
+      "C) A asserção I é verdadeira, e a II é falsa.",
+      "D) A asserção I é falsa, e a II é verdadeira.",
+      "E) As asserções I e II são falsas."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa correta é a C. A asserção I é VERDADEIRA, pois reflete exatamente o pensamento de Leontiev e Vygotski: o indivíduo nasce com um aparato biológico, mas a humanização (funções superiores) depende da apropriação da cultura mediada pela atividade. A asserção II é FALSA e contraria totalmente o texto de Rossler (2004). O texto argumenta que a alienação na cotidianidade cerceia o desenvolvimento intelectual e afetivo; o indivíduo não desenvolve a universalidade (arte, ciência) apenas pela maturação genética, mas sim quando tem acesso às 'objetivações genéricas para-si'. A falta desse acesso gera o empobrecimento do psiquismo cotidiano."
+  },
+  {
+    "id": 14,
+    "tipo": "objetiva",
+    "enunciado": "Martins e Vieira (2010) analisam as trajetórias de desenvolvimento e apresentam os 'modelos culturais de independência e interdependência'. Esses modelos não são apenas descrições geográficas, mas arranjos sociais que produzem diferentes formas de 'self' e orientam como os processos psicológicos se manifestarão. Levando em conta a crítica da disciplina ao etnocentrismo e ao reducionismo biológico, assinale a alternativa correta sobre a influência da cultura no desenvolvimento:",
+    "assercoes": [],
+    "alternativas": [
+      "A) O modelo de independência (focado na autonomia e sucesso individual) é o único arranjo capaz de garantir a saúde mental humana, devendo ser exportado como modelo biomédico para culturas de interdependência.",
+      "B) As práticas de cuidado infantil e os sistemas de crenças (como a obediência nas sociedades tradicionais versus a separação precoce nas sociedades urbanas) demonstram que as trajetórias de desenvolvimento são respostas epigenéticas e socioculturais às demandas do contexto, e não padrões genéticos invariáveis.",
+      "C) Os processos ontogenéticos ignoram os arranjos culturais; o desenvolvimento da atenção e da emoção ocorrerá exatamente da mesma forma em sociedades rurais coletivistas e em centros urbanos hiperconectados.",
+      "D) O modelo de interdependência produz sujeitos com deficiências cognitivas estruturais, uma vez que a valorização do grupo impede a maturação das conexões neurais ligadas ao livre-arbítrio.",
+      "E) O Modelo Padrão das Ciências Sociais (SSSM) é defendido pelos autores pois afirma que a cultura é apenas um verniz externo que não altera a essência filogenética e anatômica da cognição humana."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. Martins e Vieira (2010) ressaltam que o desenvolvimento humano é atravessado pelas crenças e modelos culturais, demonstrando que diferentes formas de ser e sentir são construções interacionais (epigênese), e não programas genéticos rígidos. A alternativa A está INCORRETA pois é uma visão etnocêntrica (impor a independência como único modelo de saúde), contrariando a pluralidade vista no texto. A alternativa C está INCORRETA porque a ontogênese é profundamente alterada pelas demandas culturais e pelo modelo de self (relacional vs. autônomo). A alternativa D está INCORRETA, pois o modelo interdependente não gera deficiências, mas sim uma organização psicológica diferente, baseada no suporte e na lealdade. A alternativa E está INCORRETA pois a biologia evolutiva e a psicologia sociocultural (critica do SSSM) mostram que a cultura e a biologia são indissociáveis na produção da cognição humana, não apenas um 'verniz'."
+  },
+  {
+    "id": 15,
+    "tipo": "discursiva",
+    "enunciado": "Em aula, o conceito de Epigênese (trazido por Martins e Vieira, 2010) foi articulado à frase crítica do professor: 'a violência é produzida no meio', refutando a crença de que o 'psicopata já nasce pronto'. A partir dos conceitos de epigênese probabilística e das interações entre filogênese e ontogênese, redija um argumento rejeitando o determinismo genético absoluto na construção dos transtornos de personalidade e da violência humana.",
+    "resposta_esperada": "O determinismo genético absoluto falha ao ignorar que a biologia não é um destino fechado, mas sim um campo de possibilidades que ganha forma a partir das interações com o ambiente. Segundo Martins e Vieira (2010), a epigênese probabilística explica que o desenvolvimento emerge da relação contínua e bidirecional entre os genes, a maturação anatômica e a experiência sociocultural. A filogênese dota o ser humano de predisposições e da capacidade de produzir cultura, mas é na ontogênese (história de vida individual) e no seio das relações que o psiquismo se estrutura.\nPortanto, a afirmação 'a violência é produzida no meio' alinha-se a essa visão construtivista. Ninguém nasce destinado a ser psicopata de forma inalterável; o que existe é uma inter-relação complexa onde ambientes de negligência estrutural, alienação cotidiana e violências sistêmicas afetam a expressão genética e o neurodesenvolvimento. Explicar a violência puramente por falhas no DNA serve apenas ao propósito político de isentar o meio social e o sistema econômico de suas responsabilidades pelas condições precárias que desumanizam os sujeitos e geram o sofrimento e a agressividade."
+  },
+  {
+    "id": 16,
+    "tipo": "objetiva",
+    "enunciado": "Durante as discussões em sala, abordou-se a 'pressão pelo bem-estar e hiperprodutividade' inerente ao capitalismo contemporâneo, dialogando com as teorias do biopoder (Foucault) e psicopolítica (Han). Nessa ótica, o sofrimento humano deixa de ser visto como parte constituinte da existência para ser lido como uma 'falha na máquina'. Como essa dinâmica se articula com o processo de diagnóstico psicológico infantil (ex: TDAH e Dislexia)?",
+    "assercoes": [],
+    "alternativas": [
+      "A) A sociedade contemporânea estimula a psicopolítica para emancipar o sujeito, usando o diagnóstico para fornecer tempo de leitura e descanso para as crianças.",
+      "B) O diagnóstico é utilizado como um dispositivo para corrigir a dispersão inerente à hiperestimulação tecnológica, transferindo a culpa do ambiente digital excessivo para um suposto defeito neuroquímico inato da criança.",
+      "C) O sistema rejeita o uso do diagnóstico fechado nas escolas, preferindo uma 'diagnóstica' relacional que responsabilize a instituição pelas metodologias ultrapassadas.",
+      "D) O imperativo do bem-estar garante que o diagnóstico escolar proteja a criança das exigências de produtividade, permitindo que ela vivencie seus sintomas como narrativas biográficas autênticas.",
+      "E) A biopolítica na educação atua removendo os laudos médicos e exigindo que a psiquiatria não se envolva no comportamento escolar, descentralizando o poder de intervenção."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O biopoder/psicopolítica visa a manutenção da produtividade. Quando a sociedade da tela e da hiperestimulação produz crianças dispersas, o sistema não altera o ambiente produtivo; em vez disso, 'patologiza' a resposta da criança, rotulando-a com TDAH (defeito na criança) e medicalizando-a para que se adapte novamente. A alternativa A está INCORRETA pois a psicopolítica do desempenho não emancipa, mas controla. A alternativa C está INCORRETA porque o sistema hegemônico adora e depende do diagnóstico fechado para vender soluções rápidas (medicamentos), rejeitando a 'diagnóstica' processual defendida pelo professor. A alternativa D está INCORRETA porque o diagnóstico não protege da produtividade, mas serve para reestabelecê-la. A alternativa E está INCORRETA pois a biopolítica contemporânea amplia e intensifica o uso de laudos e da medicalização na educação."
+  },
+  {
+    "id": 17,
+    "tipo": "objetiva",
+    "enunciado": "A partir da compreensão vigotskiana apresentada em aula (e nas notas de apoio sobre mediação), o conceito de Zona de Desenvolvimento Proximal/Imediato (ZDP) é fundamental para entender como os processos psicológicos básicos tornam-se funções psicológicas superiores. Qual é a implicação desse conceito para o papel do psicólogo e do educador?",
+    "assercoes": [],
+    "alternativas": [
+      "A) Demonstra que o desenvolvimento cognitivo avança independentemente da mediação social, pois as funções superiores desabrocham naturalmente com o envelhecimento neurológico.",
+      "B) Indica que o educador/mediador deve se limitar a observar a criança, pois intervir em sua ZDP pode forçar processos alienantes e retardar o amadurecimento filogenético.",
+      "C) Evidencia que a apropriação da cultura e a aprendizagem exigem a figura de um mediador social que atue na ponte entre o que o sujeito já consegue fazer sozinho e o que ele tem potencial para realizar, impulsionando a humanização.",
+      "D) Comprova que a ZDP é um marcador puramente biológico de capacidade craniana, delimitando geneticamente até que ponto um indivíduo pode aprender.",
+      "E) O conceito prescreve que todo esforço mediador é inútil diante de danos cerebrais, limitando o escopo da psicologia àqueles que não possuem qualquer divergência neurológica."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa correta é a C. A Zona de Desenvolvimento Proximal (ou Imediato) postula justamente que a aprendizagem e o desenvolvimento das funções psicológicas (a humanização) ocorrem de forma guiada no tecido social, ressaltando o papel vital do mediador (professor, psicólogo, pares mais experientes). A alternativa A está INCORRETA, pois essa é uma visão inatista/maturacionista, totalmente contrária a Vygotski. A alternativa B está INCORRETA porque Vygotski argumenta que o bom ensino é aquele que se antecipa ao desenvolvimento (atua ativamente na ZDP). A alternativa D está INCORRETA pois a ZDP é uma metáfora sócio-interacional e conceitual, não um marcador anatômico da caixa craniana. A alternativa E está INCORRETA, pois a neuropsicologia baseada em Vygotski/Luria demonstra notável plasticidade e potencial de compensação através da mediação, mesmo em cérebros lesionados."
+  },
+  {
+    "id": 18,
+    "tipo": "discursiva",
+    "enunciado": "Na clínica psicológica ou no espaço escolar, é muito comum que um sujeito seja encaminhado portando um laudo fechado (ex: 'Diagnóstico de Depressão' ou 'TDAH'), acompanhado do discurso de que ele possui um cérebro doente que não consegue produzir adequadamente.\nA partir das noções de 'A clínica não deve eliminar o sintoma apenas para devolver produtividade' e da oposição entre 'Diagnóstico' e 'Diagnóstica', diferencie esses dois conceitos. Como a postura pautada pela 'Diagnóstica' auxilia o sujeito a 'sofrer com qualidade' e a ressignificar sua alienação?",
+    "resposta_esperada": "O 'Diagnóstico' hegemônico opera como um rótulo estático e medicalizante. Ele reifica o sintoma, tratando-o como um déficit biológico isolado que impede o sujeito de ser produtivo. Nessa lógica, o objetivo principal é eliminar o incômodo (o sofrimento) o mais rápido possível por vias químicas ou adaptativas, visando restabelecer a capacidade de desempenho exigida pela sociedade capitalista contemporânea (biopoder).\nEm contrapartida, a 'Diagnóstica' é um processo vivo, contínuo e fenomenológico de investigação e escuta clínica. Ela entende que o sintoma não é um mero erro de neurotransmissores, mas uma narrativa encarnada da história e do contexto social do sujeito. Operar pela Diagnóstica significa ajudar o sujeito a 'sofrer com qualidade', o que não implica romantizar a dor, mas sim dar contorno e sentido a ela. Em vez de calar a tristeza ou a dispersão para voltar a produzir acriticamente, a clínica oferece um tempo de elaboração (semelhante ao 'tempo de leitura') para que o indivíduo compreenda as violências de seu ambiente, desnaturalize sua alienação e possa se apropriar criticamente de sua própria história."
+  },
+  {
+    "id": 19,
+    "tipo": "objetiva",
+    "enunciado": "De-Nardin e Sordi (2009) discutem o conceito de 'breakdown' no contexto da atenção em sala de aula. Esse momento de ruptura do fluxo habitual, em vez de ser classificado como 'falta de atenção', possui uma utilidade cognitiva profunda. Segundo o texto e as discussões sobre a aprendizagem inventiva, o 'breakdown' corresponde a:",
+    "assercoes": [],
+    "alternativas": [
+      "A) Um estado patológico de letargia, induzido pelo uso de telas, que paralisa o aluno de forma definitiva, caracterizando o TDAH.",
+      "B) Um desvio temporário do trabalho puramente recognitivo, promovendo um recuo e uma flutuação da atenção que abrem espaço para a problematização e a invenção da novidade.",
+      "C) Um mecanismo de controle disciplinar exercido pelo professor para forçar a atenção dos alunos a retornar unicamente à memorização das respostas corretas.",
+      "D) O momento exato em que o psiquismo sofre uma alienação completa, perdendo contato com qualquer realidade material e social.",
+      "E) O processo fisiológico pelo qual o cérebro se desliga do eixo HPA para induzir o esquecimento imediato de informações difíceis."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O 'breakdown', como definido por Varela e usado pelas autoras, é o momento de suspensão do foco e da recognição imediata (a 'distração' inventiva). Essa ruptura cria um espaço de problematização, onde presente e memória se encontram para gerar a invenção, um ganho reflexivo. A alternativa A está INCORRETA pois patologiza um momento criativo, indo contra o argumento do artigo. A alternativa C está INCORRETA porque o breakdown é o oposto do controle disciplinar de repetição; o breakdown permite o pensar 'fora da caixa'. A alternativa D está INCORRETA pois o breakdown não é alienação, mas uma conexão profunda com as experiências passadas para ressignificar o presente. A alternativa E é INCORRETA, pois utiliza termos desconexos (eixo HPA não se relaciona a esse processo de atenção inventiva no sentido proposto pelo texto)."
+  },
+  {
+    "id": 20,
+    "tipo": "objetiva",
+    "enunciado": "Considerando os ensinamentos de Rossler (2004) baseados na teoria de Heller sobre as objetivações sociais e o psiquismo, leia o fragmento: 'Na vida cotidiana, as interações sociais, a formação de hábitos, o uso da linguagem dão-se de forma essencialmente espontânea (...) regidos pelo economicismo e pelo pragmatismo'.\nQual das afirmações abaixo reflete adequadamente a postura do professor/psicólogo que entende o limite do psiquismo cotidiano para a promoção do pensamento crítico?",
+    "assercoes": [],
+    "alternativas": [
+      "A) O pragmatismo cotidiano deve ser fortalecido nas escolas, estimulando os alunos a responderem testes de forma rápida e mecânica, garantindo o sucesso profissional e o bem-estar exigido pelo mercado.",
+      "B) Como a vida cotidiana é dominada pelo economicismo (lei do menor esforço) e pelo preconceito (ultrageneralizações), é essencial mediar o acesso do indivíduo às esferas não-cotidianas (arte, ciência) para romper com a alienação e estruturar o pensamento reflexivo livre.",
+      "C) As ultrageneralizações do psiquismo cotidiano comprovam que a cognição humana é geneticamente desenhada para ser alienada, portanto, intervenções psicológicas não podem alterar os preconceitos do senso comum.",
+      "D) A apropriação dos instrumentos sociais de forma espontânea na vida cotidiana garante a humanização completa do indivíduo, tornando desnecessária qualquer teoria científica ou mediação pedagógica formal.",
+      "E) A vida não-cotidiana deve ser extirpada da educação, pois o acesso à arte e à filosofia causa dispersão e transtornos de aprendizagem em sujeitos desenhados biologicamente para o trabalho manual repetitivo."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O texto de Rossler, com base em Agnes Heller, aponta que o cotidiano é marcado pelo economicismo, pensamento espontâneo e preconceitos (ultrageneralizações) práticos. Para romper a alienação imposta pelo pragmatismo capitalista (que quer as pessoas alienadas), a escola/psicologia deve atuar mediando o acesso às objetivações genéricas para-si (esferas não-cotidianas: arte, filosofia, ciência), desenvolvendo a consciência crítica plena. A alternativa A está INCORRETA porque defender o 'pragmatismo rápido e mecânico' fortalece o biopoder e a alienação combatidos na disciplina. A alternativa C está INCORRETA por abraçar o determinismo genético da alienação, o que a teoria sócio-histórica nega. A alternativa D está INCORRETA pois a apropriação puramente espontânea do cotidiano é limitada (alienante); a humanização completa (universalidade) exige salto qualitativo via apropriação formal e teórica. A alternativa E está INCORRETA pois defende um viés abertamente excludente e patologizante da cultura, totalmente antagônico à visão emancipatória estudada."
+  },
+  {
+    "id": 21,
+    "tipo": "objetiva",
+    "enunciado": "A partir da leitura de Souza (2022) sobre 'Sensação e intuição como vertentes da perceção', a psicologia rompe com o paradigma estritamente racionalista que domina o pensamento moderno. A intuição não é vista como misticismo, mas como um processo cognitivo válido. Assinale a alternativa que reflete adequadamente a natureza corporificada da intuição e a sua relação com a clínica psicológica:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A intuição atua exclusivamente na ausência de emoções, sendo um processo lógico-dedutivo lento que garante que o terapeuta não sofra contágio emocional durante o atendimento.",
+      "B) A intuição é uma síntese pré-reflexiva e veloz, construída pelo acumular de experiências e memórias afetivas (marcadores somáticos), permitindo ao sujeito conhecer e avaliar situações de forma imediata e corporificada.",
+      "C) O fenómeno intuitivo prova que a mente opera de forma dualista, dissociada do corpo, operando através de um sistema nervoso central blindado contra influências periféricas e viscerais.",
+      "D) O uso da intuição no quotidiano é um sintoma de alienação mental (psiquismo em-si), devendo ser extirpado pela escola para que o sujeito opere apenas sob a égide da atenção recognitiva mecânica.",
+      "E) Segundo o paradigma moderno, a intuição só é viável quando desprovida do histórico cultural do sujeito, emergindo como uma verdade genética inata e imutável."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. De acordo com Souza (2022) e a perspetiva da cognição corporificada, a intuição é uma forma rápida e holística de conhecimento, baseada num reportório de experiências anteriores que se inscrevem no corpo como marcadores somáticos afetivos. A alternativa A está INCORRETA porque a intuição é rápida (e não lógica-dedutiva lenta) e é indissociável do afeto. A alternativa C está INCORRETA pois a intuição corrobora a recusa do dualismo mente-corpo (a mente está corporificada). A alternativa D está INCORRETA porque a intuição não é uma patologia ou alienação a ser extirpada; ela possui extrema validade cognitiva e relacional. A alternativa E está INCORRETA pois a intuição não é um instinto biológico inato vazio de cultura, mas sim construída na ontogénese e nas relações sócio-históricas do sujeito."
+  },
+  {
+    "id": 22,
+    "tipo": "discursiva",
+    "enunciado": "Tendo como base o texto 'Aprendizagem da atenção: uma abertura à invenção' (De-Nardin e Sordi, 2009), explique, de forma breve, como a memória está relacionada ao processo de aprendizagem (invenção) durante o fenómeno do 'breakdown'. Fundamente a sua resposta considerando a recusa à patologização da desatenção em sala de aula.",
+    "resposta_esperada": "Segundo as autoras, a memória é fundamental para o processo de invenção, pois o conhecimento não ocorre apenas por captação linear de estímulos, mas pela intersecção entre o passado do sujeito e o objeto presente. Durante o 'breakdown' (a suspensão momentânea da atenção focada ou recognitiva), ocorre um recuo tático onde o indivíduo recorre ao seu repositório de memórias, afetos e experiências anteriores. Esse resgate mnemónico permite que o sujeito retorne ao objeto com um novo olhar, possibilitando a problematização e a construção inventiva do conhecimento.\nNessa ótica, a escola e a clínica não devem patologizar esses momentos de distração, rotulando-os levianamente como Transtorno de Défice de Atenção (TDAH). Compreender a função da memória no breakdown significa entender que o sujeito precisa desse tempo de suspensão para elaborar e singularizar o que aprende, opondo-se à exigência capitalista por uma atenção contínua, dócil e estritamente reprodutiva."
+  },
+  {
+    "id": 23,
+    "tipo": "objetiva",
+    "enunciado": "Rossler (2004), ao articular o pensamento de Leontiev com a teoria da vida quotidiana de Agnes Heller, distingue a esfera quotidiana (apropriação em-si) da esfera não-quotidiana (apropriação para-si). Na perspetiva de uma psicologia emancipatória e despatologizante, avalie as proposições acerca da transição entre essas esferas e o desenvolvimento do psiquismo humano:\n\nI. A vida quotidiana, regida pelo pragmatismo e pela repetição, é o local natural da alienação; por isso, a psicologia recomenda o abandono definitivo da rotina para alcançar a saúde mental plena.\nII. As objetivações genéricas para-si (como a arte, a filosofia e a ciência) requerem um tempo de elaboração e suspensão temporal, que contrasta com a imediatês utilitária do quotidiano e fomenta o pensamento crítico.\nIII. A patologização ocorre quando o indivíduo exausto pelas exigências da vida quotidiana capitalista é impedido de aceder às esferas superiores de apropriação e o seu sofrimento é reduzido a um problema neuroquímico individual.\n\nÉ correto o que se afirma em:",
+    "assercoes": [],
+    "alternativas": [
+      "A) I e II, apenas.",
+      "B) I e III, apenas.",
+      "C) II e III, apenas.",
+      "D) III, apenas.",
+      "E) I, II e III."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa correta é a C (II e III, apenas). A proposição II está correta pois as objetivações para-si (ciência, arte) exigem recuo crítico, rompendo com o pragmatismo e propiciando a humanização. A proposição III está correta e espelha a crítica ao diagnóstico estático: o sofrimento derivado da exploração e da falta de tempo para elaboração é individualizado e medicalizado como se fosse um defeito biológico. A proposição I está INCORRETA porque Heller e Rossler não propõem o 'abandono' do quotidiano (o que seria impossível, pois todos precisam de comer, dormir, trabalhar), mas sim uma relação dialética onde a vida não-quotidiana permeia e enriquece a vida quotidiana, quebrando a hipertrofia alienante."
+  },
+  {
+    "id": 24,
+    "tipo": "discursiva",
+    "enunciado": "A partir das discussões sobre 'O Psiquismo e a Sociedade' e os conceitos de Biopoder (Foucault) e Psicopolítica (Byung-Chul Han), construa um argumento crítico explicando de que maneira a exigência escolar pelo foco atencional ininterrupto opera como um dispositivo de biopoder. Relacione essa exigência com a culpabilização do sujeito face aos problemas estruturais (como a cultura de ecrãs e hiperestimulação).",
+    "resposta_esperada": "A exigência escolar por um foco atencional ininterrupto e recognitivo atua como um dispositivo de biopoder ao moldar corpos física e cognitivamente dóceis, preparados para as exigências de produtividade e eficiência do mercado de trabalho. A escola, ao não admitir pausas, flutuações ou tempos de elaboração (fundamentais para o pensamento crítico), converte-se numa engrenagem que adestra o sujeito a focar unicamente no desempenho utilitário. Nesse cenário psicopolítico, quem desvia desse padrão reprodutivo não é lido como um sujeito em processo de invenção, mas como uma 'máquina avariada'.\nConsequentemente, o sistema capitalista consegue deslocar a raiz do problema: em vez de questionar a cultura da hiperestimulação constante (dominância dos ecrãs, zapping e aceleração social), culpabiliza-se o indivíduo. A criança dispersa, fruto de um meio estruturalmente patogénico, recebe um diagnóstico biomédico individual (como TDAH). Isso isenta o sistema de qualquer responsabilidade e legitima a medicalização para calar o sintoma e forçar o retorno do sujeito à linha de produção adaptativa."
+  },
+  {
+    "id": 25,
+    "tipo": "objetiva",
+    "enunciado": "Martins e Vieira (2010) analisam as interações entre a filogénese e a ontogénese, tecendo duras críticas ao Modelo Padrão das Ciências Sociais (SSSM) - a noção de que os seres humanos nascem como 'tábuas rasas'. Contudo, refutam igualmente o determinismo biológico. A alternativa que sintetiza corretamente a postura da disciplina perante a Epigénese Probabilística é:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A filogénese fornece instintos predeterminados de agressividade; logo, as tentativas culturais de educar sujeitos violentos estão fadadas ao fracasso devido à força do código genético inato.",
+      "B) O desenvolvimento ontogenético é um processo em que a matriz genética atua como uma predisposição plástica, sendo o contexto sociocultural, as relações materiais e a mediação que irão de facto esculpir as funções psicológicas superiores e os comportamentos (como a violência).",
+      "C) Como o modelo SSSM defende que a cultura é tudo, a psicologia crítica aceita essa premissa para justificar que nenhuma atividade biológica (como hormonas ou marcadores somáticos) influencia a cognição.",
+      "D) A epigénese comprova que a biologia impõe um limite temporal rigoroso para a aprendizagem, justificando a divisão de classes sociais com base na rapidez inata com que cada cérebro resolve problemas lógicos.",
+      "E) A cultura restringe-se a modificar comportamentos superficiais, sendo impotente para alterar a neurobiologia subjacente (como o eixo HPA) das populações urbanas contemporâneas."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. A epigénese probabilística indica que há uma bidirecionalidade: o genótipo oferece potencialidades, mas a ontogénese (desenvolvimento individual) e as relações socioculturais/cultura são quem moldam a expressão dessas funções. 'Nascemos biológicos, tornamo-nos humanos'. A alternativa A está INCORRETA pois cai no determinismo biológico ('o psicopata nasce pronto'). A alternativa C está INCORRETA pois a disciplina e os autores rejeitam o modelo 'tábula rasa' (SSSM); o corpo/biologia tem papel basilar na cognição corporificada. A alternativa D está INCORRETA pois a epigénese não justifica darwinismo social ou limites rígidos inatos. A alternativa E está INCORRETA, pois o ambiente cultural/relacional (como o stresse e o abandono) altera fisicamente a neurobiologia (modulação epigenética do eixo HPA), como visto em Gonçalves et al."
+  },
+  {
+    "id": 26,
+    "tipo": "objetiva",
+    "enunciado": "Sobre o processo da clínica psicológica pautada no paradigma da fenomenologia e da crítica sócio-histórica abordadas em aula, analise a asserção sobre o 'Sintoma' e a sua temporalidade.\n\nI. A finalidade do processo terapêutico é o resgate biográfico do sujeito através de um 'Tempo de Leitura' analítico, no qual o paciente elabora e compreende as determinações sociais e históricas que o adoeceram.\nPORQUE\nII. O sintoma humano não é um mero défice neurológico descontextualizado, mas sim um concentrado histórico da vida do sujeito, exigindo da clínica uma escuta que permita à pessoa 'sofrer com qualidade' em oposição à exigência capitalista de supressão imediata do mal-estar.\n\nA respeito destas asserções, assinale a opção correta:",
+    "assercoes": [
+      "I. A finalidade do processo terapêutico é o resgate biográfico do sujeito através de um 'Tempo de Leitura' analítico, no qual o paciente elabora e compreende as determinações sociais e históricas que o adoeceram.",
+      "II. O sintoma humano não é um mero défice neurológico descontextualizado, mas sim um concentrado histórico da vida do sujeito, exigindo da clínica uma escuta que permita à pessoa 'sofrer com qualidade' em oposição à exigência capitalista de supressão imediata do mal-estar."
+    ],
+    "alternativas": [
+      "A) As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "B) As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "C) A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "D) A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "E) As asserções I e II são proposições falsas."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A alternativa A é correta. A asserção I é verdadeira pois a clínica crítica visa o 'tempo de leitura' (elaboração e construção de sentido, ver -> elaborar -> concluir) para retirar o sujeito da alienação temporal (o 'aqui e agora' eterno do zapping). A asserção II também é verdadeira, traduzindo o lema 'Sintoma é História', e funciona perfeitamente como JUSTIFICAÇÃO da primeira: é justamente porque o sintoma carrega a biografia do indivíduo que o processo terapêutico necessita de tempo de elaboração (tempo de leitura), em oposição à lógica médica tradicional que busca extirpar o sintoma o mais rapidamente possível para devolver produtividade."
+  },
+  {
+    "id": 27,
+    "tipo": "discursiva",
+    "enunciado": "A neurociência cognitiva, como apresentada por Gonçalves et al. (2014), traz dados relevantes sobre a regulação do estresse e o funcionamento do eixo HPA nas fases iniciais do desenvolvimento. Face a estas constatações biológicas, contraponha o modelo biomédico tradicional ao modelo psicológico sócio-histórico na explicação e intervenção dos quadros de ansiedade extrema.",
+    "resposta_esperada": "O modelo biomédico tradicional costuma atuar sob um viés reducionista, encarando quadros de ansiedade extrema primariamente como desequilíbrios neuroquímicos endógenos ou falhas inatas no eixo HPA. Nesse contexto, a intervenção prioritária visa corrigir o sintoma de forma imediata através da medicalização (psicofármacos), deslocando a problemática para o campo puramente orgânico e ignorando as vivências do sujeito, a fim de garantir a rápida reinserção produtiva na sociedade.\nPor outro lado, o modelo psicológico sócio-histórico apropria-se das constatações da neurociência (epigénese probabilística) para afirmar que a biologia não é destino. A resposta alterada do eixo HPA documenta, na verdade, a inscrição corporal da história do sujeito, revelando que fatores ambientais de stresse, violências relacionais precoces e alienação social modulam fisicamente o cérebro. Assim, a intervenção clínica exige um olhar processual (Diagnóstica), onde o sintoma não é eliminado acriticamente, mas compreendido e elaborado num espaço relacional que humaniza e ressignifica a dor."
+  },
+  {
+    "id": 28,
+    "tipo": "objetiva",
+    "enunciado": "No que tange às características da Temporalidade e da Modernidade abordadas no eixo das teorias atencionais (De-Nardin e Sordi, 2009), há um diagnóstico sobre o esvaziamento da experiência causado pela cultura digital e pelo imperativo do bem-estar contínuo. Como a 'Dispersão Dominante' (ou cultura do zapping) impacta a constituição do sujeito contemporâneo?",
+    "assercoes": [],
+    "alternativas": [
+      "A) Permite uma compreensão multidimensional da realidade, fomentando indivíduos capazes de exercerem a empatia fisiológica em alta velocidade nas interações quotidianas.",
+      "B) Imerso num fluxo ininterrupto de instantes presentes ('aqui e agora'), o sujeito perde a capacidade de interiorização e de espessura histórica, o que acarreta um empobrecimento da consciência e uma subjetivação alienada.",
+      "C) Funciona como um substituto eficaz para as objetivações para-si (ciência e filosofia), uma vez que democratiza a informação através de dispositivos móveis, eliminando o biopoder sobre a classe operária.",
+      "D) Reduz os quadros de hiperatividade, pois a abundância de informações digitais satisfaz as exigências neuroquímicas do eixo HPA, conduzindo ao relaxamento corporal.",
+      "E) Demonstra que a ontogénese humana atingiu um novo patamar evolutivo, no qual a aprendizagem inventiva (breakdown) não requer mais a mediação de pares, apenas o contacto com ecrãs."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. Conforme abordado nas reflexões sobre o 'tempo pontual' vs. 'tempo de leitura', a dispersão dominante das telas cria sujeitos cativos do momento presente pontual. Sem tempo para interiorizar (Ver -> Elaborar -> Concluir), a consciência empobrece, resultando numa subjetividade fragmentada, instrumentalizada e regressiva (alienação). A alternativa A está INCORRETA, pois o zapping gera superficialidade, não compreensão profunda. A alternativa C está INCORRETA porque o fluxo digital sem elaboração intensifica a alienação (psiquismo em-si) e serve de instrumento central do biopoder contemporâneo (psicopolítica do Han). A alternativa D está INCORRETA porque o fluxo contínuo aumenta a ansiedade e desregula o stress crónico. A alternativa E é INCORRETA pois as ecrãs reduzem o espaço de suspensão reflexiva que caracteriza o 'breakdown' genuinamente construtivo; a mediação intersubjetiva continua a ser basilar."
+  },
+  {
+    "id": 29,
+    "tipo": "discursiva",
+    "enunciado": "A respeito dos modelos culturais discutidos por Martins e Vieira (2010), argumente como as diferentes conceções de 'Self' (construídas por modelos culturais de independência ou de interdependência) contrariam a ideia de que o psiquismo é estruturado apenas pela maturação filogenética inata universal.",
+    "resposta_esperada": "Se o psiquismo humano fosse estruturado unicamente por um calendário maturacional filogenético e inato universal, observar-se-ia a manifestação estrita de características cognitivas e afetivas idênticas em todos os indivíduos, independentemente do local onde nascem. Contudo, a análise dos modelos culturais evidencia que a ontogénese é profundamente maleável e plástica.\nSociedades que operam sob um modelo de independência (urbanizadas, capitalistas e focadas no sucesso pessoal) constroem um 'Self' autónomo, onde processos como a competição e o destaque individual são valorizados cognitivamente e afetivamente. Em contrapartida, sociedades de interdependência (centradas na comunidade e nos laços familiares) forjam um 'Self' relacional, pautado na empatia de grupo, obediência e harmonia do coletivo. Essas diferenças demonstram que as funções psicológicas são histórica e culturalmente moduladas (epigénese probabilística), refutando a tese de que haveria uma matriz biológica inflexível ditando a conduta humana."
+  },
+  {
+    "id": 30,
+    "tipo": "objetiva",
+    "enunciado": "A formulação 'O fluxo do conhecimento obedece à ordem: Sentir -> Perceber -> Compreender', exprime uma rejeição da supremacia da razão descorporificada. A Emoção assume um papel central. Consoante as bases da Cognição Corporificada e os estudos da neurociência referidos em aula, qual a verdadeira função da afetação emocional na experiência do sujeito?",
+    "assercoes": [],
+    "alternativas": [
+      "A) A emoção é uma falha na maquinaria neurobiológica, atuando como um entrave ou 'ruído' que desvia o indivíduo da apreensão lógica e objetiva da realidade material.",
+      "B) A emoção age de forma estritamente reativa às frustrações do quotidiano, desempenhando um papel exclusivo na esfera de sobrevivência básica e sem influência na aprendizagem escolar complexa.",
+      "C) A afetação emocional não apenas precede o pensamento racional, como também atua como a organizadora primordial da experiência sensorial, balizando a memória e o significado das relações com o mundo.",
+      "D) O afeto é compreendido como um constructo exclusivamente social que carece de correlação somática real, não gerando quaisquer mudanças fisiológicas autonómicas percetíveis.",
+      "E) A emoção, enquanto traço evolutivo em decadência filogenética, deve ser reprimida terapeuticamente para que a clínica psicológica alcance a supressão sintomática requerida pelo imperativo do bem-estar."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa correta é a C. A emoção não é oposta à razão, mas o cimento que organiza a perceção e fundamenta o fluxo de conhecimento (Sentir, Perceber, Compreender). Os marcadores afetivos dão sentido ao que percebemos e guardamos na memória. A alternativa A está INCORRETA, pois representa o viés racionalista ultrapassado que via o afeto como erro/ruído. A alternativa B está INCORRETA porque o afeto está presente nas aprendizagens mais complexas e criativas. A alternativa D está INCORRETA, já que a emoção possui fortes reflexos somáticos/autonómicos reais, provando a cognição corporificada. A alternativa E está INCORRETA, pois vai frontalmente contra a visão do professor (emancipação e respeito pela vivência vs. supressão medicamentosa higienista para adequação social)."
+  },
+  {
+    "id": 31,
+    "tipo": "objetiva",
+    "enunciado": "A obra de João Rossler (2004), ancorada em Agnes Heller e Leontiev, discute o desenvolvimento do psiquismo cotidiano. A alienação não é vista como um estado metafísico, mas como uma condição concreta da vida material sob o sistema capitalista. Sobre a relação entre o psiquismo, a cotidianidade e a alienação, assinale a alternativa que reflete a visão crítica adotada na disciplina:",
+    "assercoes": [],
+    "alternativas": [
+      "A) A cotidianidade é intrinsecamente nociva ao ser humano e deve ser abolida, substituindo-se todas as atividades rotineiras (como o trabalho e o uso espontâneo da linguagem) exclusivamente por atividades teóricas e científicas.",
+      "B) A alienação do psiquismo cotidiano ocorre quando há uma hipertrofia dessa esfera, ou seja, quando o indivíduo, imerso na lei do menor esforço e no pragmatismo para sobreviver, é privado de acessar as esferas não-cotidianas (objetivações para-si).",
+      "C) O psiquismo humano alcança seu grau máximo de emancipação quando o indivíduo se adapta perfeitamente às exigências produtivas de sua rotina, o que comprova a ausência de alienação e de adoecimento psíquico.",
+      "D) A teoria de Leontiev confirma que a alienação é um fenômeno estritamente filogenético, originado de mutações no córtex pré-frontal, sendo impossível revertê-la através da apropriação da cultura e da arte.",
+      "E) O indivíduo alienado caracteriza-se por uma atividade intelectual excessivamente crítica e reflexiva, o que atrapalha sua inserção passiva na linha de produção demandada pelo capitalismo moderno."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. Para Heller e Rossler, a alienação não é o simples viver no cotidiano (que é necessário para a sobrevivência), mas sim o aprisionamento nele (hipertrofia), onde o sujeito é impedido (pela exploração do trabalho, falta de tempo, etc.) de acessar a arte, a ciência e a filosofia (objetivações genéricas para-si) que gerariam o pensamento crítico. A alternativa A está INCORRETA pois é impossível abolir a vida cotidiana (esfera da reprodução do indivíduo). A alternativa C está INCORRETA, pois a 'adaptação perfeita' às exigências produtivas acríticas é justamente o sintoma máximo do biopoder e da alienação. A alternativa D está INCORRETA pois a alienação é um processo sócio-histórico e material, não uma mutação filogenética/genética. A alternativa E está INCORRETA porque o sujeito alienado, devido ao pragmatismo e ao economicismo do cotidiano, carece justamente de atividade intelectual crítica, agindo por preconceitos e ultrageneralizações."
+  },
+  {
+    "id": 32,
+    "tipo": "discursiva",
+    "enunciado": "O artigo 'Sensação e intuição: duas vertentes da percepção' (Souza, 2022) resgata a intuição como um processo válido de conhecimento, retirando-lhe o caráter místico. Tendo em vista o conceito de Cognição Corporificada discutido em sala, explique brevemente como a intuição se processa psicofisiologicamente e qual a sua utilidade ética e prática na atuação do psicólogo clínico.",
+    "resposta_esperada": "A intuição processa-se de forma pré-reflexiva, veloz e não-consciente, baseada no acúmulo de memórias implícitas e experiências passadas do sujeito. Sob a ótica da cognição corporificada (e apoiada na teoria dos marcadores somáticos de Damásio), essas experiências estão inscritas na biologia do indivíduo através de marcadores afetivos. Quando confrontado com uma nova situação, o corpo 'sente' (por meio de microalterações viscerais, sudorese, ritmo cardíaco) antes mesmo da mente racionalizar, organizando a percepção e guiando a tomada de decisão.\nNa prática do psicólogo clínico, a intuição possui imensa utilidade ética e prática, pois permite uma apreensão holística do sofrimento do paciente. O terapeuta utiliza a sua própria ressonância corporal (empatia fisiológica) e o seu repertório de experiências clínicas para captar nas entrelinhas, nas microexpressões e no clima afetivo da sessão aquilo que não foi verbalizado. Isso humaniza o encontro, evitando que a clínica se torne um mero checklist frio de sintomas racionais, e respeita a complexidade do encontro intersubjetivo."
+  },
+  {
+    "id": 33,
+    "tipo": "objetiva",
+    "enunciado": "No texto de Martins e Vieira (2010), debate-se fortemente o 'Modelo Padrão das Ciências Sociais' (SSSM) e a Psicologia Evolucionista em busca de um entendimento integrado do desenvolvimento humano (Epigênese). A crítica da disciplina à noção de 'tábula rasa' alinha-se a qual compreensão sobre a formação dos processos psicológicos?",
+    "assercoes": [],
+    "alternativas": [
+      "A) A mente humana nasce vazia de qualquer predisposição, sendo as reações emocionais (como o medo ou o apego) invenções arbitrárias exclusivas da cultura moderna, sem base evolutiva.",
+      "B) O desenvolvimento ontogenético é ditado apenas pela filogênese, tornando o contexto sociocultural um mero cenário passivo que não consegue alterar as estruturas cerebrais inatas do sujeito.",
+      "C) O ser humano nasce com predisposições biológicas (filogênese), mas a arquitetura e a função das capacidades psicológicas só se concretizam através da imersão em contextos socioculturais específicos e da mediação social (epigênese probabilística).",
+      "D) O modelo SSSM é amplamente defendido na disciplina porque prova que a biologia impõe limites irreversíveis ao aprendizado, justificando a estigmatização de crianças com dificuldades escolares.",
+      "E) A cultura atua suprimindo completamente a filogênese humana, o que explica por que transtornos psicológicos são curados exclusivamente através de intervenções medicamentosas isoladas do ambiente."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa correta é a C. A disciplina e os autores propõem a epigênese como integração: a filogênese nos dá uma base (predisposições biológicas), mas é a cultura e a ontogênese (história de vida) que efetivamente moldam, bidirecionalmente, os processos psicológicos ('nascemos biológicos, tornamo-nos humanos'). A alternativa A está INCORRETA porque descreve o SSSM ('tábula rasa'), o qual é criticado na aula e no texto; o humano tem bagagem evolutiva. A alternativa B está INCORRETA pois cai no determinismo biológico absoluto, negando a plasticidade do cérebro frente à cultura. A alternativa D está INCORRETA porque a disciplina REJEITA o SSSM e a estigmatização, focando na mediação. A alternativa E está INCORRETA porque a cultura não 'suprime' a biologia (elas interagem), e a disciplina critica veementemente a exclusividade medicamentosa (que ignora o sintoma como história)."
+  },
+  {
+    "id": 34,
+    "tipo": "discursiva",
+    "enunciado": "A frase 'Nascemos biológicos, tornamo-nos humanos', central na disciplina, apoia-se nas reflexões sobre ontogênese, filogênese (Martins e Vieira, 2010) e no papel da mediação (Zona de Desenvolvimento Proximal - ZDP, de Vygotski). A partir dessas premissas, discorra sobre a importância do 'outro' (o mediador e a cultura) para que uma função biológica básica (ex: a atenção involuntária) se transforme em um Processo Psicológico Superior (atenção voluntária/consciência).",
+    "resposta_esperada": "A filogênese dota o recém-nascido de processos psicológicos básicos, como os reflexos condicionados, as reações instintivas e a atenção involuntária (focada em estímulos bruscos do ambiente). O indivíduo nasce com este arcabouço biológico, no entanto, para que 'se torne humano' e desenvolva as Funções Psicológicas Superiores (como a atenção voluntária, a memória mediada, o pensamento lógico e a consciência crítica), é imperativa a inserção social e a apropriação da cultura.\nÉ através da interação dialética com o 'outro' que o sujeito se desenvolve. O mediador social (seja o cuidador, o professor ou o psicólogo), atuando na Zona de Desenvolvimento Proximal (ZDP), oferece os signos e os instrumentos culturais (como a linguagem) que funcionam como ponte entre o potencial da criança e a sua realização. Assim, a atenção que antes era cativa dos reflexos biológicos é submetida à vontade consciente mediada pela fala e pela cultura social, rompendo com qualquer forma de determinismo inatista e comprovando que a humanização é um produto da história material e relacional."
+  },
+  {
+    "id": 35,
+    "tipo": "objetiva",
+    "enunciado": "Diante das anotações de aula sobre 'A Questão Social é Deslocada', analisa-se o fenômeno onde o sistema capitalista transforma problemas estruturais em doenças individuais. Segundo os conceitos de Psicopolítica de Byung-Chul Han e Biopoder de Foucault explorados na disciplina, qual o objetivo ideológico subjacente à hiperpatologização de comportamentos como a tristeza profunda, a exaustão e a desatenção (transformados rapidamente em Depressão, Burnout e TDAH)?",
+    "assercoes": [],
+    "alternativas": [
+      "A) Proteger o sujeito das pressões do capital, garantindo-lhe licenças prolongadas para que ele possa exercitar seu tempo de leitura e se emancipar politicamente.",
+      "B) Impor a lógica do desempenho, culpabilizando o próprio indivíduo por falhar diante da hiperestimulação e da precarização, medicalizando-o para que recupere rapidamente sua utilidade e produtividade no mercado.",
+      "C) Promover a cognição corporificada nas escolas, incentivando os professores a adotarem processos de aprendizagem inventiva em detrimento do trabalho puramente recognitivo.",
+      "D) Atacar o modelo de bem-estar biomédico para substituí-lo por uma 'Diagnóstica' processual baseada na análise fenomenológica da história de vida de cada trabalhador.",
+      "E) Deslocar a culpa do indivíduo de volta para a estrutura social, forçando empresas e escolas a adaptarem suas rotinas de produção e ensino ao ritmo natural (filogenético) do corpo humano."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O viés psicopolítico do neoliberalismo mascara a violência estrutural (o excesso de telas, a precarização do trabalho, o cansaço sistêmico) como um problema do cérebro individual. O objetivo ideológico é isentar o sistema de culpa, tratar o trabalhador/aluno como 'defeituoso' e forçar a medicalização visando puramente o retorno da produtividade, sem questionar o modelo social. A alternativa A está INCORRETA porque a hiperpatologização visa exatamente abolir o tempo reflexivo (tempo de leitura) e manter o controle. A alternativa C está INCORRETA pois a patologização (TDAH) reprime a aprendizagem inventiva/breakdown (De-Nardin e Sordi). A alternativa D está INCORRETA, pois o sistema recusa a 'Diagnóstica' (que leva tempo) e prefere o Diagnóstico em forma de laudo rápido e fechado. A alternativa E está INCORRETA porque o sistema capitalista faz exatamente o oposto: desloca a culpa da sociedade para o indivíduo, forçando o corpo a se adaptar à máquina, não o inverso."
+  },
+  {
+    "id": 36,
+    "tipo": "objetiva",
+    "enunciado": "A investigação de Gonçalves et al. (2014) em neurociência cognitiva oferece evidências substanciais sobre o impacto das vivências precoces na biologia do indivíduo. Assinale a alternativa que explica corretamente, do ponto de vista neurocientífico e psicológico sócio-histórico, as consequências de contextos de severa privação, estresse ou abandono no início da vida ontogenética:",
+    "assercoes": [],
+    "alternativas": [
+      "A) Contextos de privação não produzem alterações neurobiológicas significativas devido à barreira hematoencefálica que protege o eixo HPA de influências socioculturais adversas.",
+      "B) O abandono e o estresse precoce provocam uma reprogramação epigenética da expressão gênica (especialmente dos receptores de glicocorticoides no eixo HPA), modulando uma vulnerabilidade biológica duradoura ao estresse, o que ratifica a premissa de que 'o sintoma é a história do sujeito'.",
+      "C) As adversidades precoces aceleram o desenvolvimento da inteligência lógico-matemática através da superativação crônica do cortisol, beneficiando o processo de atenção recognitiva exigido na fase adulta escolar.",
+      "D) O impacto dessas vivências é passageiro, sendo apagado espontaneamente quando a criança ingressa na adolescência, provando que a memória afetiva corporificada é descartável.",
+      "E) A privação ambiental altera exclusivamente o comportamento motor superficial do indivíduo, deixando intactos os marcadores somáticos e os processos de empatia que pertencem à essência inalterável da alma humana."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. O artigo de Gonçalves et al. aponta para a 'programação epigenética': o ambiente social traumático (estresse precoce) altera fisicamente e molecularmente o cérebro (eixo HPA, regulação do cortisol). Isso embasa perfeitamente a visão do professor: a biologia não é destino estático, mas o 'sintoma é história', pois a dor social está literalmente esculpida no corpo. A alternativa A está INCORRETA, pois vai frontalmente contra os dados científicos do texto (o eixo HPA é altamente suscetível ao ambiente). A alternativa C está INCORRETA porque o excesso crônico de cortisol causa déficits cognitivos, atencionais e de memória, não benefícios. A alternativa D está INCORRETA porque a modulação epigenética pode ser duradoura (ou até transgeracional) se não mediada clinicamente/socialmente. A alternativa E está INCORRETA, já que a privação afeta áreas cruciais da emoção, do apego, da cognição social (empatia) e dos marcadores somáticos."
+  },
+  {
+    "id": 37,
+    "tipo": "discursiva",
+    "enunciado": "Nas aulas sobre Temporalidade e Modernidade, foi estabelecida uma oposição entre a 'Dispersão Dominante' (ou Cultura das Telas/Zapping) e o 'Tempo de Leitura'. À luz destas discussões e da obra de João Rossler (2004) sobre as esferas do psiquismo, explique como a imposição da cultura do imediatismo digital atua como uma barreira à apropriação das objetivações para-si (ciência, arte, filosofia) e corrobora para a manutenção da alienação cotidiana.",
+    "resposta_esperada": "A cultura da 'Dispersão Dominante' (ou do zapping) instaura uma temporalidade fragmentada, enclausurando o sujeito numa sucessão veloz de instantes presentes (o 'aqui e agora'). Essa hiperestimulação digital inviabiliza o tempo de recuo e a espessura histórica necessários para a reflexão profunda. Por outro lado, o 'Tempo de Leitura' exige um processo de interiorização cumulativa (Ver → Elaborar → Concluir), que demanda duração, paciência cognitiva e conexão analítica.\nSegundo a teoria de Rossler (baseada em Heller), para que o psiquismo supere a alienação da vida cotidiana – caracterizada pelo pragmatismo e pelas ultrageneralizações –, é vital a apropriação das objetivações genéricas para-si (como a arte, a ciência e a filosofia). No entanto, o acesso a essas instâncias superiores requer, impreterivelmente, a temporalidade do 'Tempo de Leitura'. A imposição do imediatismo digital atua como uma barreira psicopolítica, pois rouba do indivíduo a capacidade de elaboração atenta, mantendo-o aprisionado na superficialidade, empobrecendo a sua consciência e perpetuando o estado de alienação funcional exigido pelo sistema."
+  },
+  {
+    "id": 38,
+    "tipo": "objetiva",
+    "enunciado": "A respeito do modelo atencional proposto por De-Nardin e Sordi (2009) em 'Aprendizagem da atenção: uma abertura à invenção', analise as asserções a seguir e a relação entre elas sobre as práticas de atenção em sala de aula:\n\nI. A escola tradicionalmente valoriza a 'atenção recognitiva', um modelo que se destina ao controle disciplinar, à repetição de conteúdos e à manutenção de uma postura passiva e focada na adaptação do aluno.\nPORQUE\nII. Quando a criança desvia o foco para realizar um 'breakdown' – um mergulho em sua memória para problematizar e inventar um sentido genuíno –, a escola costuma reconhecer imediatamente esse ato como genialidade, fomentando o livre pensamento na rotina escolar.\n\nA respeito dessas asserções, assinale a opção correta:",
+    "assercoes": [
+      "I. A escola tradicionalmente valoriza a 'atenção recognitiva', um modelo que se destina ao controle disciplinar, à repetição de conteúdos e à manutenção de uma postura passiva e focada na adaptação do aluno.",
+      "II. Quando a criança desvia o foco para realizar um 'breakdown' – um mergulho em sua memória para problematizar e inventar um sentido genuíno –, a escola costuma reconhecer imediatamente esse ato como genialidade, fomentando o livre pensamento na rotina escolar."
+    ],
+    "alternativas": [
+      "A) As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "B) As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "C) A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "D) A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "E) As asserções I e II são proposições falsas."
+    ],
+    "resposta_correta": 2,
+    "explicacao": "A alternativa C é a correta. A asserção I é verdadeira, refletindo a crítica de De-Nardin e Sordi: a escola exige a atenção recognitiva (captar e reconhecer) como forma de biopoder, visando controle e repetição. A asserção II é falsa: quando a criança manifesta o 'breakdown' (flutuação de foco necessária para a invenção), a escola não o reconhece como genialidade ou aprendizagem, mas o reprime, o patologiza (com rótulos como TDAH) e pune o aluno por estar 'desatento' à tarefa adaptativa, o que impossibilita o 'fomento do livre pensamento' que a asserção II falsamente alega existir na prática escolar dominante."
+  },
+  {
+    "id": 39,
+    "tipo": "discursiva",
+    "enunciado": "Para concluir as reflexões sobre os preceitos ético-políticos trabalhados até à Aula 07, imagine o seguinte cenário clínico: Um adulto chega ao consultório relatando profunda angústia, cansaço extremo e dificuldade de concentração no trabalho, e apresenta um autodiagnóstico de 'Depressão Refratária e TDAH Adulto', afirmando que tem um 'defeito no cérebro'.\nBaseado nos eixos da aula ('Sintoma é História', 'Crítica ao DSM e à Patologização' e 'A clínica não deve eliminar o sintoma apenas para devolver produtividade'), descreva qual deve ser o manejo clínico inicial (Diagnóstica) desse paciente. Como o terapeuta deve abordar a queixa biológica trazida pelo sujeito?",
+    "resposta_esperada": "O manejo clínico inicial, pautado pela 'Diagnóstica', deve refutar o uso mecânico e validatório de rótulos estáticos (como o autodiagnóstico de 'defeito no cérebro' embasado no DSM). O terapeuta não deve, de antemão, buscar estratégias (sejam farmacológicas exclusivas ou adaptativas) para eliminar rapidamente o cansaço e a desatenção apenas para devolver ao paciente a produtividade exigida pelo capital. A escuta fenomenológica deve acolher o sujeito, retirando a culpa individualizada que o sistema lhe impôs.\nPara isso, a intervenção baseia-se na premissa de que o 'sintoma é história'. A queixa biológica e o esgotamento atencional não são negados materialmente, mas contextualizados: são compreendidos como a expressão encarnada e corporificada de uma vida submetida à precarização, à hiperestimulação (zapping) e ao biopoder. O objetivo ético do terapeuta é promover um 'Tempo de Leitura' analítico, ajudando o paciente a elaborar sua narrativa, desnaturalizar sua alienação cotidiana e aprender a 'sofrer com qualidade'. Isso significa dar um contorno simbólico à dor, permitindo que ele se aproprie ativamente da sua biografia e da raiz sócio-histórica de seu adoecimento."
+  },
+  {
+    "id": 40,
+    "tipo": "objetiva",
+    "enunciado": "Ao integrarmos os saberes da Neurociência (Gonçalves et al., 2014), da Psicologia do Desenvolvimento e da Cultura (Martins e Vieira, 2010), e da teoria da Percepção e Cognição Corporificada (Souza, 2022), chegamos a uma compreensão complexa do fenômeno humano que rejeita visões parciais. Qual das alternativas abaixo sintetiza a integração correta desses campos epistemológicos na visão de uma psicologia crítica e não reducionista?",
+    "assercoes": [],
+    "alternativas": [
+      "A) A neurociência invalida as concepções de Vygotski sobre a mediação cultural, demonstrando que funções psicológicas superiores, como a intuição, resultam puramente do espessamento mecânico do córtex, dispensando a experiência social.",
+      "B) O psiquismo humano é um fenômeno emergente da relação dialética entre a filogênese (predisposição neurobiológica), a ontogênese (história do sujeito) e a cultura; nessa dinâmica, a empatia e a intuição corporificadas comprovam que afeto, razão, corpo e sociedade formam uma unidade indissociável.",
+      "C) O determinismo genético ressurge através da epigênese como a única forma científica de entender a mente, legitimando o uso do biopoder para classificar indivíduos em raças ou aptidões baseadas na genética evolutiva rígida.",
+      "D) O sofrimento é um subproduto inevitável de cérebros arcaicos tentando lidar com estímulos modernos, portanto, a terapia focada no contexto histórico do sujeito ('Diagnóstica') é cientificamente irrelevante.",
+      "E) O Modelo de Independência cultural demonstra supremacia cognitiva sobre o Modelo de Interdependência, validando o isolamento do indivíduo competitivo como meta biológica final do Homo sapiens."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A alternativa correta é a B. Essa alternativa faz a síntese perfeita da disciplina: a recusa do dualismo (mente-corpo e razão-emoção) através da cognição corporificada (empatia real e intuição com marcadores somáticos), somada à epigênese de Martins e Vieira (a dialética entre biologia, ontogênese e cultura/Vygotski). A alternativa A está INCORRETA porque a neurociência, lida de forma crítica, corrobora Vygotski (neuroplasticidade mediada). A alternativa C está INCORRETA pois a epigênese é o oposto do determinismo genético, e o biopoder é alvo de combate da disciplina. A alternativa D está INCORRETA, pois se opõe ao cerne da disciplina ('sintoma é história' e a relevância da intervenção Diagnóstica processual). A alternativa E está INCORRETA porque os modelos de self (independente/interdependente) produzem trajetórias diferentes, não havendo 'supremacia' ou meta biológica inata do capitalismo/competição."
+  }
+    ];
+
+const questoes = banco; 
+    let currentIndex = 0;
+    let progresso = {};
+
+    // Função que carrega o progresso do LocalStorage
+    function carregarProgresso() {
+        progresso = JSON.parse(localStorage.getItem('simul_psico_progresso')) || {
+            respostas: {}, 
+            acertos: 0, 
+            erros: 0
+        };
+    }
+
+    function initQuiz() {
+        carregarProgresso();
+        if(questoes.length === 0) {
+            document.getElementById("enunciado-text").innerText = "As questões não foram coladas no código fonte!";
+            document.getElementById("submit-btn").style.display = "none";
+            return;
+        }
+        document.getElementById("total-questions").innerText = questoes.length;
+        gerarGridNavegacao();
+        atualizarEstatisticas();
+        carregarQuestao();
+    }
+
+    function salvarProgresso() {
+        localStorage.setItem('simul_psico_progresso', JSON.stringify(progresso));
+        atualizarEstatisticas();
+        gerarGridNavegacao();
+    }
+
+    function atualizarEstatisticas() {
+        document.getElementById("score-correct").innerText = progresso.acertos;
+        document.getElementById("score-incorrect").innerText = progresso.erros;
+        let totalRespondidas = progresso.acertos + progresso.erros;
+        let percent = totalRespondidas === 0 ? 0 : Math.round((progresso.acertos / totalRespondidas) * 100);
+        document.getElementById("score-percent").innerText = percent;
+    }
+
+    function gerarGridNavegacao() {
+        const grid = document.getElementById("grid-area");
+        grid.innerHTML = "";
+        questoes.forEach((q, index) => {
+            const btn = document.createElement("button");
+            btn.className = "grid-btn";
+            btn.innerText = index + 1;
+            btn.onclick = () => irParaQuestao(index);
+            
+            if (index === currentIndex) btn.classList.add("current");
+            
+            if (progresso.respostas[q.id] !== undefined) {
+                if (q.tipo === "discursiva") {
+                    btn.classList.add("answered-correct");
+                    btn.style.background = "#3498db";
+                    btn.style.borderColor = "#2980b9";
+                } else {
+                    if (progresso.respostas[q.id] === q.resposta_correta) {
+                        btn.classList.add("answered-correct");
+                    } else {
+                        btn.classList.add("answered-incorrect");
+                    }
+                }
+            }
+            grid.appendChild(btn);
+        });
+    }
+
+    function irParaQuestao(index) {
+        currentIndex = index;
+        carregarQuestao();
+        gerarGridNavegacao();
+    }
+
+    function navegar(direcao) {
+        let novoIndex = currentIndex + direcao;
+        if (novoIndex >= 0 && novoIndex < questoes.length) {
+            irParaQuestao(novoIndex);
+        }
+    }
+
+    function carregarQuestao() {
+        const questao = questoes[currentIndex];
+        document.getElementById("current-question-num").innerText = currentIndex + 1;
+        document.getElementById("enunciado-text").innerText = questao.enunciado;
+        
+        const assercoesArea = document.getElementById("assercoes-area");
+        if(questao.assercoes && questao.assercoes.length > 0) {
+            assercoesArea.style.display = "block";
+            assercoesArea.innerHTML = questao.assercoes.join("<br><br>");
+        } else {
+            assercoesArea.style.display = "none";
+        }
+
+        const optionsArea = document.getElementById("options-area");
+        optionsArea.innerHTML = ""; 
+        
+        const jaRespondida = progresso.respostas[questao.id] !== undefined;
+        const respostaDada = progresso.respostas[questao.id];
+
+        if (questao.tipo === "discursiva") {
+            const textarea = document.createElement("textarea");
+            textarea.id = "resposta-discursiva";
+            textarea.placeholder = "Escreva o seu rascunho de resposta aqui...";
+            textarea.style.width = "100%";
+            textarea.style.minHeight = "150px";
+            textarea.style.padding = "15px";
+            textarea.style.fontFamily = "inherit";
+            textarea.style.fontSize = "1em";
+            textarea.style.borderRadius = "6px";
+            textarea.style.border = "2px solid #ecf0f1";
+            textarea.style.boxSizing = "border-box";
+            textarea.style.marginBottom = "15px";
+            
+            if (jaRespondida) {
+                textarea.value = respostaDada; 
+                textarea.disabled = true;
+                textarea.style.background = "#f8f9fa";
+            }
+            optionsArea.appendChild(textarea);
+
+        } else {
+            // Lógica de embaralhar as alternativas (Salva a ordem para não trocar se o usuário apenas navegar entre as telas)
+            if (!questao.ordemAlternativas) {
+                questao.ordemAlternativas = questao.alternativas
+                    .map((_, index) => index)
+                    .sort(() => Math.random() - 0.5);
+            }
+
+            questao.ordemAlternativas.forEach((originalIndex) => {
+                const alt = questao.alternativas[originalIndex];
+                
+                // Remove as letras "A)", "B)", etc da frente do texto visual
+                const textoLimpo = alt.replace(/^[A-E]\)\s*/, "");
+                
+                const label = document.createElement("label");
+                label.className = "option-label";
+                
+                if (jaRespondida) {
+                    if (originalIndex === questao.resposta_correta) label.classList.add("correct");
+                    else if (originalIndex === respostaDada) label.classList.add("incorrect");
+                }
+                
+                const checked = (jaRespondida && respostaDada === originalIndex) ? "checked" : "";
+                const disabled = jaRespondida ? "disabled" : "";
+                
+                label.innerHTML = `<input type="radio" name="opcao" value="${originalIndex}" ${checked} ${disabled}> ${textoLimpo}`;
+                optionsArea.appendChild(label);
+            });
+        }
+
+        document.getElementById("prev-btn").disabled = (currentIndex === 0);
+        document.getElementById("next-btn").disabled = (currentIndex === questoes.length - 1);
+        
+        const submitBtn = document.getElementById("submit-btn");
+        
+        if (jaRespondida) {
+            submitBtn.style.display = "none";
+            mostrarFeedback(questao, respostaDada);
+        } else {
+            submitBtn.style.display = "block";
+            submitBtn.innerText = questao.tipo === "discursiva" ? "Revelar Padrão de Resposta" : "Confirmar Resposta";
+            submitBtn.disabled = false;
+            document.getElementById("feedback-area").style.display = "none";
+        }
+    }
+
+    function verificarResposta() {
+        const questao = questoes[currentIndex];
+
+        if (questao.tipo === "discursiva") {
+            const texto = document.getElementById("resposta-discursiva").value;
+            progresso.respostas[questao.id] = texto; 
+            salvarProgresso();
+            carregarQuestao(); 
+            return;
+        }
+
+        const opcoes = document.getElementsByName("opcao");
+        let selecionada = -1;
+        for (let i = 0; i < opcoes.length; i++) {
+            if (opcoes[i].checked) { selecionada = parseInt(opcoes[i].value); break; }
+        }
+
+        if (selecionada === -1) {
+            alert("Selecione uma alternativa antes de responder!");
+            return;
+        }
+
+        progresso.respostas[questao.id] = selecionada;
+
+        if (selecionada === questao.resposta_correta) { progresso.acertos++; } 
+        else { progresso.erros++; }
+
+        salvarProgresso();
+        carregarQuestao(); 
+    }
+
+    function mostrarFeedback(questao, respostaDada) {
+        const feedbackArea = document.getElementById("feedback-area");
+        const feedbackTitle = document.getElementById("feedback-title");
+        const feedbackExp = document.getElementById("feedback-explanation");
+
+        feedbackArea.className = "feedback"; 
+        feedbackArea.style.background = "";
+        feedbackArea.style.borderColor = "";
+        feedbackArea.style.color = "";
+
+        if (questao.tipo === "discursiva") {
+            feedbackArea.style.background = "#e1f5fe";
+            feedbackArea.style.borderColor = "#81d4fa";
+            feedbackArea.style.color = "#01579b";
+            feedbackTitle.innerText = "Padrão de Resposta Esperado pelo Professor:";
+            feedbackExp.innerHTML = questao.resposta_esperada;
+        } else {
+            if (respostaDada === questao.resposta_correta) {
+                feedbackArea.classList.add("correct-box");
+                feedbackTitle.innerText = "Mandou bem! Resposta Correta.";
+            } else {
+                feedbackArea.classList.add("incorrect-box");
+                feedbackTitle.innerText = "Ops! Resposta Incorreta.";
+            }
+            
+            // Pega a frase da alternativa correta e tira a letra (A, B, C...)
+            const textoCorreto = questao.alternativas[questao.resposta_correta].replace(/^[A-E]\)\s*/, "");
+            
+            // Limpa o "Correta: X." que vem no JSON original
+            const explicacaoLimpa = questao.explicacao.replace(/^Correta:\s*[A-E]\.\s*/i, "");
+
+            // Monta o feedback visualmente organizado
+            feedbackExp.innerHTML = `
+                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.6); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
+                    <strong>A resposta certa era:</strong> <br> ${textoCorreto}
+                </div>
+                <strong>Por quê?</strong> <br> ${explicacaoLimpa}
+            `;
+        }
+
+        feedbackArea.style.display = "block";
+    }
+
+    function zerarSimulado() {
+        if(confirm("Tem certeza que deseja apagar todo o seu progresso? Isso vai embaralhar as alternativas novamente.")) {
+            localStorage.removeItem('simul_psico_progresso');
+            progresso = { respostas: {}, acertos: 0, erros: 0 };
+            
+            // Força o sistema a criar uma nova ordem aleatória para as alternativas
+            questoes.forEach(q => delete q.ordemAlternativas);
+            
+            irParaQuestao(0);
+            atualizarEstatisticas();
+        }
+    }
+
+    window.onload = initQuiz;
+</script>
+</body>
+</html>
